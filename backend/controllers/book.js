@@ -52,6 +52,33 @@ export const createBook = async (req, res) => {
   }
 };
 
+export const addRating = async (req, res) => {
+  try {
+    const book = await Book.findById(req.params.id);
+    if (!book) {
+      return res.status(404).json({ error: "Book not found" });
+    }
+    console.log(book);
+    if (book.ratings.find((rating) => rating.userId === req.auth.userId)) {
+      return res.status(400).json({ error: "Rating already added" });
+    }
+    book.ratings.push({
+      userId: req.auth.userId,
+      grade: req.body.rating,
+    });
+    book.averageRating =
+      book.ratings.reduce((acc, rating) => acc + rating.grade, 0) /
+      book.ratings.length;
+    console.log(book);
+    await book.save();
+    res.status(200).json(book);
+  } catch (error) {
+    res
+      .status(500)
+      .json({ error: "An error occurred while adding the rating" });
+  }
+};
+
 export const deleteBook = async (req, res) => {
   try {
     const book = await Book.findById(req.params.id);
