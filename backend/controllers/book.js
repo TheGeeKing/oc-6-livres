@@ -24,6 +24,17 @@ export const getBook = async (req, res) => {
   }
 };
 
+export const getBestRatedBooks = async (req, res) => {
+  try {
+    const books = await Book.find().sort({ averageRating: -1 }).limit(3);
+    res.status(200).json(books);
+  } catch (error) {
+    res.status(500).json({
+      error: "An error occurred while retrieving the best rated books",
+    });
+  }
+};
+
 export const createBook = async (req, res) => {
   try {
     const { _id, _userId, ...bookData } = JSON.parse(req.body.book);
