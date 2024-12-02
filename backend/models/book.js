@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import { uniqueValidator } from "mongoose-unique-validator";
+import uniqueValidator from "mongoose-unique-validator";
 
 const bookSchema = mongoose.Schema({
   userId: { type: String, required: true },

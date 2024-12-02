@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
-import { uniqueValidator } from "mongoose-unique-validator";
+import uniqueValidator from "mongoose-unique-validator";
 
-const emailRegex = /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/;
+import { emailRegex } from "../utils.js";
 
 const userSchema = mongoose.Schema({
   email: {
