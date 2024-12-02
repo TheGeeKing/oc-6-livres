@@ -1,4 +1,5 @@
 import Book from "../models/book.js";
+import { deleteImage } from "../utils.js";
 
 export const getAllBooks = async (_, res) => {
   try {
@@ -48,5 +49,30 @@ export const createBook = async (req, res) => {
   } catch (error) {
     //TODO: better handle db issue (500) or validation issue (400)
     res.status(400).json({ error });
+  }
+};
+
+export const deleteBook = async (req, res) => {
+  try {
+    const book = await Book.findById(req.params.id);
+    if (!book) {
+      return res.status(404).json({ error: "Book not found" });
+    }
+    if (book.userId !== req.auth.userId) {
+      return res.status(403).json({ error: "Unauthorized" });
+    }
+    const successfullyDeletedImage = await deleteImage(book.imageUrl);
+    if (!successfullyDeletedImage) {
+      return res.status(500).json({
+        error: "An error occurred while deleting the book image",
+      });
+    }
+    await Book.findByIdAndDelete(req.params.id);
+    res.status(200).json({ message: "deleted" });
+  } catch (error) {
+    console.log(error);
+    res
+      .status(500)
+      .json({ error: "An error occurred while deleting the book" });
   }
 };

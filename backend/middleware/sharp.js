@@ -14,9 +14,9 @@ const processImage = async (req, res, next) => {
     const { buffer, originalname: originalFileName } = req.file;
 
     const timestamp = new Date().valueOf();
-    const fileName = `${timestamp}-${path.parse(originalFileName).name}.webp`;
+    const filename = `${timestamp}-${path.parse(originalFileName).name}.webp`;
     const folderPath = path.join(__dirname, "/images/");
-    const filePath = path.join(folderPath, fileName);
+    const filePath = path.join(folderPath, filename);
 
     const processedBuffer = await sharp(buffer)
       .webp({ quality: 75 })
@@ -31,7 +31,7 @@ const processImage = async (req, res, next) => {
 
     const processedImageUrl = `${req.protocol}://${req.get(
       "host"
-    )}/images/${fileName}`;
+    )}/images/${filename}`;
     req.processedImageUrl = processedImageUrl;
 
     next();
