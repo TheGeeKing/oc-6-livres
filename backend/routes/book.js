@@ -8,6 +8,7 @@ import {
   getBook,
   deleteBook,
   addRating,
+  updateBook,
 } from "../controllers/book.js";
 import multer from "../middleware/multer.js";
 import sharp from "../middleware/sharp.js";
@@ -20,5 +21,6 @@ router.get("/:id", getBook); // Get a book
 router.post("/:id/rating", auth, addRating); // Add rating to a book
 router.post("/", auth, multer, sharp, createBook); // Create a new book
 router.delete("/:id", auth, deleteBook); // Delete a book
+router.put("/:id", auth, multer, sharp, updateBook); // Update a book
 
 export default router;

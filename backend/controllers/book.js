@@ -58,7 +58,7 @@ export const addRating = async (req, res) => {
     if (!book) {
       return res.status(404).json({ error: "Book not found" });
     }
-    console.log(book);
+
     if (book.ratings.find((rating) => rating.userId === req.auth.userId)) {
       return res.status(400).json({ error: "Rating already added" });
     }
@@ -69,7 +69,7 @@ export const addRating = async (req, res) => {
     book.averageRating =
       book.ratings.reduce((acc, rating) => acc + rating.grade, 0) /
       book.ratings.length;
-    console.log(book);
+
     await book.save();
     res.status(200).json(book);
   } catch (error) {
@@ -97,9 +97,55 @@ export const deleteBook = async (req, res) => {
     await Book.findByIdAndDelete(req.params.id);
     res.status(200).json({ message: "deleted" });
   } catch (error) {
-    console.log(error);
     res
       .status(500)
       .json({ error: "An error occurred while deleting the book" });
+  }
+};
+
+export const updateBook = async (req, res) => {
+  try {
+    const book = await Book.findById(req.params.id);
+    if (!book) {
+      return res.status(404).json({ error: "Book not found" });
+    }
+    if (book.userId !== req.auth.userId) {
+      return res.status(403).json({ error: "Unauthorized" });
+    }
+
+    if (!req.file) {
+      await Book.findByIdAndUpdate(req.params.id, {
+        ...req.body,
+      });
+      return res.status(200).json({ message: "updated" });
+    }
+
+    // if there is an image, we delete the old image
+    const successfullyDeletedImage = await deleteImage(book.imageUrl);
+    if (!successfullyDeletedImage) {
+      return res.status(500).json({
+        error: "An error occurred while deleting the previous book image",
+      });
+    }
+
+    if (!req.body.book) {
+      return res.status(400).json({ error: "Invalid data" });
+    }
+
+    const { book: bookFromUser } = req.body;
+
+    await Book.findByIdAndUpdate(req.params.id, {
+      ...JSON.parse(bookFromUser),
+      imageUrl: req.processedImageUrl,
+    });
+
+    res.status(200).json({ message: "updated" });
+  } catch (error) {
+    if (req.file) {
+      await deleteImage(req.processedImageUrl);
+    }
+    res
+      .status(500)
+      .json({ error: "An error occurred while updating the book" });
   }
 };
